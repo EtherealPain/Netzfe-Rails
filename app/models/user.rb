@@ -6,4 +6,7 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
   include DeviseTokenAuth::Concerns::User
+
+  has_one_attached :avatar
+  #this line uses activestorage to store the files on a local file (for now), attached is added because it is a file
 end
