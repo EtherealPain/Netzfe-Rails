@@ -24,6 +24,10 @@ gem 'devise_token_auth'
 gem 'omniauth'
 
 
+gem 'acts_as_votable', '~> 0.12.0'
+#act as votable is used to facilitate liking functionality
+
+
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
