@@ -38,6 +38,16 @@ class ActivitiesController < ApplicationController
     end
   end
 
+
+
+  #POST /activity/:id/like
+  def like
+    @activity.liked_by(current_user)
+  end
+  #POST /activity/:id/unlike
+  def unlike
+    @activity.unliked_by(current_user)
+  end
   # DELETE /activities/1
   def destroy
     @activity.destroy
