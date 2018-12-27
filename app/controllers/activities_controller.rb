@@ -1,5 +1,7 @@
 class ActivitiesController < ApplicationController
-  before_action :set_activity, only: [:show, :update, :destroy]
+  before_action :set_activity, only: [:show, :update, :destroy, :like, :unlike]
+  before_action :authenticate_user!
+
 
   # GET /activities
   def index
@@ -40,13 +42,16 @@ class ActivitiesController < ApplicationController
 
 
 
-  #POST /activity/:id/like
+  #POST /activities/1/like
   def like
     @activity.liked_by(current_user)
+    # puts(current_user.uid) used for testing purposes, it's not needed anymore, but will be kept in case another test must be done
+    render json: @activity
   end
-  #POST /activity/:id/unlike
+  #POST /activities/1/unlike
   def unlike
     @activity.unliked_by(current_user)
+    render json: @activity
   end
   # DELETE /activities/1
   def destroy

@@ -6,9 +6,9 @@ Rails.application.routes.draw do
   	#/activity/:id
 
   		post 'like'
-  		#POST /activity/:id/like
+  		#POST /activities/:id/like
   		post 'unlike'
-  		#POST /activity/:id/unlike
+  		#POST /activities/:id/unlike
   	end
   end	
   mount_devise_token_auth_for 'User', at: 'auth'
