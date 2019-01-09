@@ -46,7 +46,7 @@ class ActivitiesController < ApplicationController
   def like
     @activity.liked_by(current_user)
     # puts(current_user.uid) used for testing purposes, it's not needed anymore, but will be kept in case another test must be done
-    render json: @activity
+    render json: ActivitySerializer.new(@activity).serialized_json
   end
   #POST /activities/1/unlike
   def unlike

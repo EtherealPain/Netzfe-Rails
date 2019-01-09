@@ -28,6 +28,8 @@ gem 'acts_as_votable', '~> 0.12.0'
 #act as votable is used to facilitate liking functionality
 
 
+gem 'fast_jsonapi'
+gem 'oj'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
