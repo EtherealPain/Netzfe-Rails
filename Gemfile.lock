@@ -69,6 +69,8 @@ GEM
       devise (> 3.5.2, < 4.6)
       rails (>= 4.2.0, < 6)
     erubi (1.8.0)
+    fast_jsonapi (1.5)
+      activesupport (>= 4.2)
     globalid (0.4.1)
       activesupport (>= 4.2.0)
     hashie (3.6.0)
@@ -90,6 +92,7 @@ GEM
     nio4r (2.3.1)
     nokogiri (1.9.1-x64-mingw32)
       mini_portile2 (~> 2.4.0)
+    oj (3.7.6)
     omniauth (1.9.0)
       hashie (>= 3.4.6, < 3.7.0)
       rack (>= 1.6.2, < 3)
@@ -156,6 +159,8 @@ DEPENDENCIES
   bootsnap (>= 1.1.0)
   byebug
   devise_token_auth
+  fast_jsonapi
+  oj
   omniauth
   pg (>= 0.18, < 2.0)
   puma (~> 3.11)
