@@ -11,6 +11,8 @@ class User < ActiveRecord::Base
   #this line uses activestorage to store the files on a local file (for now), attached is added because it is a file
 
   #followers and following implementarion
+
+  has_many :activities
   
   acts_as_follower
   #enable the user to use the follow methods

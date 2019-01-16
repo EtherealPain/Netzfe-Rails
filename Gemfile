@@ -33,7 +33,7 @@ gem 'oj'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
-
+gem 'acts_as_commentable_with_threading'
 
 # facilitates following and followed fields
 gem 'acts_as_follower', github: 'tcocca/acts_as_follower', branch: 'master'

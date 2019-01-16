@@ -7,7 +7,7 @@ class Activity < ApplicationRecord
 
   #VALIDATIONS
   validates_presence_of :user, :description, :deadline
-  validate :deadline_is_not_in_the_past
+  validate :deadline_is_not_in_the_past 
 
 
 
@@ -17,9 +17,10 @@ class Activity < ApplicationRecord
 
   acts_as_votable
 
+  acts_as_commentable
   #methods
   def deadline_is_not_in_the_past
-    if deadline.present? && deadline < DateTime.now
+    if deadline_changed? && deadline.present? && deadline < DateTime.now
 	  errors.add(:deadline, "Deadline can not be in the past")
     end
   end
