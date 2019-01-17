@@ -10,4 +10,12 @@ class ActivitySerializer
   	object.followers_by_type('User').size
   end
 
+  attribute :image do |object|
+  	Rails.application.routes.url_helpers.rails_blob_path(object.image, only_path: true) if object.image.attachment
+  end
+
+  attribute :comments do |object|
+  	object.root_comments
+  end
+
 end

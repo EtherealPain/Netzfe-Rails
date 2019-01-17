@@ -12,20 +12,18 @@ class ActivitiesController < ApplicationController
 
   # GET /activities/1
   def show
-    render json: @activity
+    render json: ActivitySerializer.new(@activity).serialized_json
   end
 
   # POST /activities
   def create
-    @activity = Activity.new(activity_params)
-
-    @activity.user = current_user
+    @activity = current_user.activities.new(activity_params)
     #this line automatically makes the current logged in user as the owner (creator) of an activity
     #it's probably not necessary to add the owner of the activity on the body
     #it also helps prevent forgery, you can't upload an activity using somebody's else's identity
     
     if @activity.save
-      render json: @activity, status: :created, location: @activity
+      render json: ActivitySerializer.new(@activity).serialized_json, status: :created, location: @activity
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
@@ -34,7 +32,7 @@ class ActivitiesController < ApplicationController
   # PATCH/PUT /activities/1
   def update
     if @activity.update(activity_params)
-      render json: @activity
+      render json: ActivitySerializer.new(@activity).serialized_json
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
@@ -66,6 +64,6 @@ class ActivitiesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def activity_params
-      params.require(:activity).permit(:deadline, :description, :user_id, :category_id)
+      params.require(:activity).permit(:deadline, :description, :user_id, :category_id, :image)
     end
 end
