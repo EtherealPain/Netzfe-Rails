@@ -23,6 +23,10 @@ class ActivitiesController < ApplicationController
     #it also helps prevent forgery, you can't upload an activity using somebody's else's identity
     
     if @activity.save
+      #create room for this activity
+      @room = Room.new(name: @activity.description, activity: @activity)
+      @room.users << @activity.user
+      @room.save
       render json: ActivitySerializer.new(@activity).serialized_json, status: :created, location: @activity
     else
       render json: @activity.errors, status: :unprocessable_entity

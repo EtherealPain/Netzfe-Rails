@@ -3,6 +3,7 @@ class Activity < ApplicationRecord
   belongs_to :user
   belongs_to :category
   has_one_attached :image
+  has_one :room #An activity always has one room
 
 
   #VALIDATIONS

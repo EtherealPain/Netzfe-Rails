@@ -1,15 +1,22 @@
 Rails.application.routes.draw do
   #this routes is for conversations
-  resources :rooms do
+  resources :rooms, except: [:create] do
     member do
       #this is join another users in the rooms
       post 'join'
-      #Post /rooms/:id/join
+      #Post /rooms/:id/join      
+      #this is leave the room
+      delete 'leave'
+      #Delete /rooms/:id/leave
+
+      resources :messages
+      #/rooms/:id/messages
     end
-    resources :messages
+    
   end
 
   resources :categories
+
   resources :activities do
   #/activities 
   	member do
@@ -26,13 +33,8 @@ Rails.application.routes.draw do
     #get or post /activities/:id/comments
     #but leaves the member routes aka #get, #update, #delete to the /comments/:id routes
     #the comments have a commentable_id that is basically a per-model index, not sure how it would work
+  end
 
-
-
-
-  end	
   mount_devise_token_auth_for 'User', at: 'auth'
-  
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
-
 end
