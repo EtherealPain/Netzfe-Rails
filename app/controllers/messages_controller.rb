@@ -20,7 +20,7 @@ class MessagesController < ApplicationController
     @message.user = current_user
 
     if @message.save
-      render json:  @room, status: :created
+      MessageRelayJob.perform_later(message)
     else
       header(:unprocessable_entity)
     end

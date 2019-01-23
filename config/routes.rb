@@ -12,8 +12,11 @@ Rails.application.routes.draw do
       resources :messages
       #/rooms/:id/messages
     end
-    
   end
+
+  # Serve websocket cable requests in-process
+  mount ActionCable.server => '/cable'
+
 
   resources :categories
 

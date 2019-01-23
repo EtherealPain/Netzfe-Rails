@@ -12,7 +12,7 @@ class RoomsController < ApplicationController
 
   # GET /rooms/1
   def show
-    render json: RoomSerializer.new(@room, include: [:messages]).serialized_json
+    render json: RoomSerializer.new(@room).serialized_json
   end
 
   #Join another user to the room
