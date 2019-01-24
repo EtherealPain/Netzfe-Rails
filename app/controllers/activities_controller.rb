@@ -1,6 +1,9 @@
 class ActivitiesController < ApplicationController
-  before_action :set_activity, only: [:show, :update, :destroy, :like, :unlike]
+
+  before_action :set_activity, only: [:show, :update, :destroy, :like, :unlike, :voteup, :votedown, :join, :share]
   before_action :authenticate_user!
+  before_action :check_status, except: :create
+  before_action :vote_prelim, only: [:voteup, :votedown]
 
 
   # GET /activities
@@ -23,6 +26,10 @@ class ActivitiesController < ApplicationController
     #it also helps prevent forgery, you can't upload an activity using somebody's else's identity
     
     if @activity.save
+      #create room for this activity
+      @room = Room.new(name: @activity.description, activity: @activity)
+      @room.users << @activity.user
+      @room.save
       render json: ActivitySerializer.new(@activity).serialized_json, status: :created, location: @activity
     else
       render json: @activity.errors, status: :unprocessable_entity
@@ -35,6 +42,22 @@ class ActivitiesController < ApplicationController
       render json: ActivitySerializer.new(@activity).serialized_json
     else
       render json: @activity.errors, status: :unprocessable_entity
+    end
+  end
+
+  # POST /activities/:id/share
+  #This is for share the activity, we need to clone or duplicate the activity but we need change user_id 
+  def share
+    @activity_clone = Activity.new 
+    @activity_clone = @activity.dup
+    @activity_clone.user_id = current_user.id
+    @activity_clone.shared = true 
+    @activity_clone.activity_id = @activity.id
+
+    if @activity_clone.save
+      render json: ActivitySerializer.new(@activity_clone).serialized_json, status: :created, location: @activity_clone
+    else
+      render json: @activity_clone.errors, status: :unprocessable_entity
     end
   end
 
@@ -51,6 +74,48 @@ class ActivitiesController < ApplicationController
     @activity.unliked_by(current_user)
     render json: @activity
   end
+
+  def voteup
+    if @activity.errors.empty?
+      @votable_user.liked_by @activity, :vote_weight => params['vote_weight'].to_i
+      render json: UserSerializer.new(@votable_user).serialized_json
+    else
+      render json: @activity.errors, status: :unprocessable_entity
+    end
+
+  end
+
+  def votedown
+    if @activity.errors.empty?
+      @votable_user.downvote_from @activity, :vote_weight => params['vote_weight'].to_i
+      render json: UserSerializer.new(@votable_user).serialized_json
+    else
+      render json: @activity.errors, status: :unprocessable_entity
+    end
+  end
+
+
+  def join
+    if @activity.add_participant current_user
+      render json: ActivitySerializer.new(@activity).serialized_json, status: :created, location: @activity
+    else
+      render json: @activity.errors, status: :unprocessable_entity
+    end
+  end
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
   # DELETE /activities/1
   def destroy
     @activity.destroy
@@ -64,6 +129,36 @@ class ActivitiesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def activity_params
-      params.require(:activity).permit(:deadline, :description, :user_id, :category_id, :image)
+      params.require(:activity).permit(:deadline, :description, :category_id, :image)
     end
+
+    def check_status
+      @activity.check_status
+    end
+
+    def vote_prelim
+      @votable_user=User.find_by(id: params[:votable_user_id])
+      if @votable_user.nil?
+        @activity.errors.add(:base, "User not found")
+        #TODO implement an actual response on why it returned a 404
+      else #if it's not nil
+        if @votable_user.following? @activity #is he part of the follower list?
+            
+          unless current_user == @activity.creator #is the current issuer the creator?
+            @activity.errors.add(:base, "Cannot vote on users if you are not the creator") 
+        else  #he is not a participant
+          @activity.errors.add(:base, "Cannot vote on users who did not participate on the activity")
+          #if you are not the creator you should NOT be voting on users
+          end
+          #the user is not part of the selection
+        end
+      end
+      a=params['vote_weight'].to_i
+      if a<=0 or a>5
+        @activity.errors.add(:base, "Vote weight should be between 1 and 5")
+      end
+    end
+    #at the end of all this, he:
+    #exists, belongs to the followers, and the current 
+
 end
