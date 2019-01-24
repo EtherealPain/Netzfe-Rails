@@ -1,4 +1,5 @@
 class CategoriesController < ApplicationController
+  include PgSearch
   before_action :set_category, only: [:show, :update, :destroy]
 
   # GET /categories

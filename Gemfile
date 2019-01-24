@@ -27,6 +27,8 @@ gem 'omniauth'
 gem 'acts_as_votable', '~> 0.12.0'
 #act as votable is used to facilitate liking functionality
 
+#For the search methods
+gem 'pg_search'
 
 gem 'fast_jsonapi'
 gem 'oj'
