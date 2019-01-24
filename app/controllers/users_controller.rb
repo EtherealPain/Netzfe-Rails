@@ -70,11 +70,11 @@ class UsersController < ApplicationController
   end
   #GET users/:id/followers
   def followers
-    render status: :not_found
+   head :not_found
   end
   #GET users/:id/following
   def following
-    
+    head :not_found
   end
 
   private

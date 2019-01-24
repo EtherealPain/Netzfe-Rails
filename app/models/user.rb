@@ -34,6 +34,9 @@ class User < ActiveRecord::Base
     #TODO check what to do here once other methods are implemented
   end
 
+  def rating
+    self.weighted_score
+  end
 
 
 

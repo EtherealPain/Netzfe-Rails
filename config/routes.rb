@@ -14,9 +14,9 @@ Rails.application.routes.draw do
       # post/:id/force_to_unfollow
        #/users/:id/force_to_unfollow
       get 'followers'
-      #get users/:id/followers
+      #GET users/:id/followers
       get 'following'
-      #get users/:id/following
+      #GET users/:id/following
 
 
 
@@ -29,12 +29,19 @@ Rails.application.routes.draw do
   	member do
   	#/activities/:id
 
-
+      post 'join'
       #for likes
   		post 'like'
   		#POST /activities/:id/like
   		post 'unlike'
   		#POST /activities/:id/unlike
+
+      #post 'voteup/:votable_user_id' => 'activities#voteup'
+      post 'voteup'
+      #POST users/:id/voteup/
+      post 'votedown'
+      #post 'votedown/:votable_user_id' => 'activities#votedown'
+      #POST users/:id/votedown
 
   	end
     resources :comments, shallow: true
