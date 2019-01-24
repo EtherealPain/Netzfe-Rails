@@ -28,7 +28,8 @@ Rails.application.routes.draw do
   		post 'like'
   		#POST /activities/:id/like
   		post 'unlike'
-  		#POST /activities/:id/unlike
+      #POST /activities/:id/unlike
+      post 'share'
   	end
 
     resources :comments, shallow: true

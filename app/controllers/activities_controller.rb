@@ -1,5 +1,5 @@
 class ActivitiesController < ApplicationController
-  before_action :set_activity, only: [:show, :update, :destroy, :like, :unlike]
+  before_action :set_activity, only: [:show, :update, :destroy, :like, :unlike, :share]
   before_action :authenticate_user!
 
 
@@ -39,6 +39,22 @@ class ActivitiesController < ApplicationController
       render json: ActivitySerializer.new(@activity).serialized_json
     else
       render json: @activity.errors, status: :unprocessable_entity
+    end
+  end
+
+  # POST /activities/:id/share
+  #This is for share the activity, we need to clone or duplicate the activity but we need change user_id 
+  def share
+    @activity_clone = Activity.new 
+    @activity_clone = @activity.dup
+    @activity_clone.user_id = current_user.id
+    @activity_clone.shared = true 
+    @activity_clone.activity_id = @activity.id
+
+    if @activity_clone.save
+      render json: ActivitySerializer.new(@activity_clone).serialized_json, status: :created, location: @activity_clone
+    else
+      render json: @activity_clone.errors, status: :unprocessable_entity
     end
   end
 
