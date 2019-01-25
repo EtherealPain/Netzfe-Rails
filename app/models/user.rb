@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class User < ActiveRecord::Base
+  include PgSearch #this is to search
+  pg_search_scope :search_by_full_name, :against => [:first_name, :last_name] #search register by first or last name
+
   has_and_belongs_to_many :rooms, dependent: :destroy #one user can have many conversations
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable

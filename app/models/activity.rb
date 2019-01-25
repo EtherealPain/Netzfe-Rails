@@ -1,4 +1,7 @@
 class Activity < ApplicationRecord
+  include PgSearch #this is to search
+  multisearchable :against => :category_id #search register by category_id
+  
   #relations
   belongs_to :user
   belongs_to :category
@@ -30,7 +33,7 @@ class Activity < ApplicationRecord
   end
 
   def check_status
-    if deadline > DateTime.now
+    if self.deadline > DateTime.now
       self.status = 1
     end
   end

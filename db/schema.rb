@@ -10,8 +10,6 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-
-
 ActiveRecord::Schema.define(version: 2019_01_24_073731) do
 
   # These are extensions that must be enabled in order to support this database
@@ -45,12 +43,9 @@ ActiveRecord::Schema.define(version: 2019_01_24_073731) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "category_id"
-
     t.boolean "shared"
     t.integer "activity_id"
-
     t.integer "status", default: 0
-
     t.index ["category_id"], name: "index_activities_on_category_id"
     t.index ["user_id"], name: "index_activities_on_user_id"
   end

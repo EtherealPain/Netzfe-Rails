@@ -1,8 +1,8 @@
 class ActivitiesController < ApplicationController
 
-  before_action :set_activity, only: [:show, :update, :destroy, :like, :unlike, :voteup, :votedown, :join, :share]
+  before_action :set_activity, only: [:show, :update, :destroy, :like, :unlike, :voteup, :votedown, :join, :share, :check_status]
   before_action :authenticate_user!
-  before_action :check_status, except: :create
+  before_action :check_status, except: [:create, :index]
   before_action :vote_prelim, only: [:voteup, :votedown]
 
 
@@ -135,6 +135,7 @@ class ActivitiesController < ApplicationController
     def check_status
       @activity.check_status
     end
+
 
     def vote_prelim
       @votable_user=User.find_by(id: params[:votable_user_id])

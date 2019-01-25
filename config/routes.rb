@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  get 'search/search'
   #this routes is for conversations
   resources :rooms, except: [:create] do
     member do
@@ -81,11 +82,7 @@ Rails.application.routes.draw do
     #but leaves the member routes aka #get, #update, #delete to the /comments/:id routes
     #the comments have a commentable_id that is basically a per-model index, not sure how it would work
   end
-
-
-
-
-  end	
+	
   mount_devise_token_auth_for 'User', at: 'auth', controllers: {
     registrations: 'registrations',
   }
