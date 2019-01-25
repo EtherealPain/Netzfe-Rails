@@ -10,13 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< HEAD
-ActiveRecord::Schema.define(version: 2019_01_24_061949) do
-=======
+
 
 ActiveRecord::Schema.define(version: 2019_01_24_073731) do
-
->>>>>>> origin/chat
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
