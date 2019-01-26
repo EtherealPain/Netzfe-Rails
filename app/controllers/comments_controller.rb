@@ -4,6 +4,7 @@ class CommentsController < ApplicationController
   before_action :authenticate_user!
 
 
+
   # GET /activities/:id/comments
   def index
     @comments = @activity.root_comments
@@ -18,27 +19,40 @@ class CommentsController < ApplicationController
 
   # POST /activities/:id/comments
   def create
+
 	@comment = Comment.build_from( @activity, current_user.id, params[:body] )
-    
-    if @comment.save
+
+    if @activity.append_comment(@comment)
       render json: ActivitySerializer.new(@activity).serialized_json, status: :created, location: @activity
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
+
   end
 
   # PATCH/PUT /comments/1
   def update
-    if @comment.update(comment_params)
-      render json: CommentSerializer.new(@comment).serialized_json
-    else
-      render json: @comment.errors, status: :unprocessable_entity
-    end
+  	if @activity.can_comment?
+  		if @comment.update(comment_params)
+	      render json: CommentSerializer.new(@comment).serialized_json
+	    else
+	      render json: @comment.errors, status: :unprocessable_entity
+	   	end
+  	else
+  		@activity.errors.add(:base, "Could not update comment because the activity has been archived")
+  		render json: @activity.errors, status: :unprocessable_entity
+  	end
+    
   end
 
   # DELETE /comments/1
   def destroy
-    @comment.destroy
+  	if @activity.can_comment?
+    	@comment.destroy
+    else
+  		@activity.errors.add(:base, "Could not delete comment because the activity has been archived")
+  		render json: @activity.errors, status: :unprocessable_entity
+  	end
   end
 
   private

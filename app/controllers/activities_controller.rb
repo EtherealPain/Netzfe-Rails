@@ -1,6 +1,6 @@
 class ActivitiesController < ApplicationController
 
-  before_action :set_activity, only: [:show, :update, :destroy, :like, :unlike, :voteup, :votedown, :join, :share]
+  before_action :set_activity, only: [:show, :update, :destroy, :like, :unlike, :voteup, :votedown, :join, :share, :archive, :complete]
   before_action :authenticate_user!
   before_action :check_status, except: :create
   before_action :vote_prelim, only: [:voteup, :votedown]
@@ -10,7 +10,7 @@ class ActivitiesController < ApplicationController
   def index
     @activities = Activity.all
 
-    render json: @activities
+    render json: ActivitySerializer.new(@activities).serialized_json
   end
 
   # GET /activities/1
@@ -65,14 +65,25 @@ class ActivitiesController < ApplicationController
 
   #POST /activities/1/like
   def like
-    @activity.liked_by(current_user)
-    # puts(current_user.uid) used for testing purposes, it's not needed anymore, but will be kept in case another test must be done
-    render json: ActivitySerializer.new(@activity).serialized_json
+
+    if @activity.like_post(current_user)
+      render json: ActivitySerializer.new(@activity).serialized_json
+    else
+      render json: @activity.errors, status: :unprocessable_entity
+    end
+
+
+
   end
   #POST /activities/1/unlike
   def unlike
-    @activity.unliked_by(current_user)
-    render json: @activity
+
+    if @activity.unlike_post(current_user)
+      render json: ActivitySerializer.new(@activity).serialized_json
+    else
+      render json: @activity.errors, status: :unprocessable_entity
+    end
+
   end
 
   def voteup
@@ -97,12 +108,28 @@ class ActivitiesController < ApplicationController
 
   def join
     if @activity.add_participant current_user
-      render json: ActivitySerializer.new(@activity).serialized_json, status: :created, location: @activity
+      render json: ActivitySerializer.new(@activity).serialized_json
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
   end
 
+  def leave
+    if @activity.remove_participant current_user
+      render json: ActivitySerializer.new(@activity).serialized_json
+    else
+      render json: @activity.errors, status: :unprocessable_entity
+    end
+  end
+
+  def complete
+    @activity.complete
+    render json: ActivitySerializer.new(@activity).serialized_json
+  end
+
+  def archive
+    @activity.archive
+  end
   
 
 
@@ -129,10 +156,11 @@ class ActivitiesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def activity_params
-      params.require(:activity).permit(:deadline, :description, :category_id, :image)
+      params.require(:activity).permit(:deadline, :description, :category_id, :image, :title)
     end
 
     def check_status
+      puts "adios"
       @activity.check_status
     end
 
@@ -140,7 +168,6 @@ class ActivitiesController < ApplicationController
       @votable_user=User.find_by(id: params[:votable_user_id])
       if @votable_user.nil?
         @activity.errors.add(:base, "User not found")
-        #TODO implement an actual response on why it returned a 404
       else #if it's not nil
         if @votable_user.following? @activity #is he part of the follower list?
             
@@ -153,12 +180,18 @@ class ActivitiesController < ApplicationController
           #the user is not part of the selection
         end
       end
+      
+      #verify the vote weight
       a=params['vote_weight'].to_i
       if a<=0 or a>5
-        @activity.errors.add(:base, "Vote weight should be between 1 and 5")
+        @activity.errors.add(:base, "Vote weight should be a number between 1 and 5")
+      end
+      #verify if voting is available
+      unless @activity.can_vote?
+        @activity.errors.add(:base, "The activity has not ended, you cannot vote on users yet.")
       end
     end
     #at the end of all this, he:
-    #exists, belongs to the followers, and the current 
+    #exists, belongs to the followers, and the current issuer is the creator of the activity
 
 end
