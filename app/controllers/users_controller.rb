@@ -2,6 +2,7 @@ class UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy, :archive, :follow, :block, :unfollow, :unblock]
   before_action :authenticate_user!
 
+
   # GET /users
   def index
     @users = User.all
@@ -36,12 +37,20 @@ class UsersController < ApplicationController
 
   # DELETE /users/1
   def destroy
-    @user.destroy
+    if current_user.id == @user.id
+      @user.destroy
+    else
+      head(:forbidden)
+    end
   end
 
   #POST /users/1/archive
   def archive
-     @user.archive_user
+    if current_user.is_admin?
+      @user.archive_user
+    else
+      head(:forbidden)
+    end
   end
 
   #POST /users/:id/follow

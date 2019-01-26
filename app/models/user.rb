@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 class User < ActiveRecord::Base
   include PgSearch #this is to search
   pg_search_scope :search_by_full_name, :against => [:first_name, :last_name] #search register by first or last name
@@ -23,10 +22,8 @@ class User < ActiveRecord::Base
   #it can follow itself if you add the line below
   #it is also used to follow the activity
 
-
   acts_as_followable
   #enables the user to be followed
-
 
   acts_as_votable 
   #permits voting on the user, it works as the rating column
@@ -41,7 +38,5 @@ class User < ActiveRecord::Base
   def rating
     self.weighted_score
   end
-
-
 
 end
