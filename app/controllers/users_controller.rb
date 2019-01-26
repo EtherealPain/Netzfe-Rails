@@ -45,7 +45,6 @@ class UsersController < ApplicationController
      @user.archive_user
   end
 
-
   #POST /users/:id/follow
   def follow
     current_user.follow(@user)
@@ -56,22 +55,25 @@ class UsersController < ApplicationController
   def unfollow
     current_user.stop_following(@user)
     render json: UserSerializer.new(@user).serialized_json
-
   end
+
   #POST /users/:id/block
   def block
     current_user.block(@user)
     render json: UserSerializer.new(@user).serialized_json
   end
+
   #POST /users/:id/unblock
   def unblock
     current_user.unblock(@user)
     render json: UserSerializer.new(@user).serialized_json
   end
+
   #GET users/:id/followers
   def followers
    head :not_found
   end
+
   #GET users/:id/following
   def following
     head :not_found
@@ -86,6 +88,7 @@ class UsersController < ApplicationController
     def is_self
       current_user == @user
     end
+    
     # Only allow a trusted parameter "white list" through.
     def user_params
       params.require(:user).permit(:first_name, :last_name, :date_of_birth, :degree, :avatar, :phone)
