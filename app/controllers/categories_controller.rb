@@ -1,6 +1,6 @@
 class CategoriesController < ApplicationController
-  devise_token_auth_group :member, contains: [:user, :admin]
-  before_action :authenticate_member!
+  before_action :authenticate_user!
+  before_action :only_admin, only: [:update, :destroy, :create]
   before_action :set_category, only: [:show, :update, :destroy]
   
   # GET /categories
@@ -47,9 +47,12 @@ class CategoriesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_category
-      @category = Category.where(id: params[:id], status: 1)
-      if @category[0].nil?
-        head(:not_found)
+      @category = Category.find(params[:id])
+    end
+
+    def only_admin
+      if not current_user.is_admin?
+        head(:forbidden)
       end
     end
 

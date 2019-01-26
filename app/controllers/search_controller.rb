@@ -1,4 +1,6 @@
 class SearchController < ApplicationController
+  before_action :authenticate_user!
+  
   def search
     @category = Category.where('lower(description) = ?', params[:query].downcase).first
     if @category.nil?

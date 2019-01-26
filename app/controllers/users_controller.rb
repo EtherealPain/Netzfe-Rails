@@ -1,6 +1,5 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy, :archive, :follow, :block, :unfollow, :unblock]
-  before_action :is_self
   before_action :authenticate_user!
 
   # GET /users
@@ -85,10 +84,6 @@ class UsersController < ApplicationController
       @user = User.find(params[:id])
     end
 
-    def is_self
-      current_user == @user
-    end
-    
     # Only allow a trusted parameter "white list" through.
     def user_params
       params.require(:user).permit(:first_name, :last_name, :date_of_birth, :degree, :avatar, :phone)
