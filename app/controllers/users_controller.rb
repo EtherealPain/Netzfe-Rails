@@ -1,11 +1,11 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy, :archive, :follow, :block, :unfollow, :unblock]
   before_action :authenticate_user!
-
-
+  before_action :is_me, only: [:edit, :destroy]
+  before_action :is_archived, only: :show
   # GET /users
   def index
-    @users = User.all
+    @users = User.where(archived: false)
 
     render json: @users
   end
@@ -37,11 +37,7 @@ class UsersController < ApplicationController
 
   # DELETE /users/1
   def destroy
-    if current_user.id == @user.id
-      @user.destroy
-    else
-      head(:forbidden)
-    end
+    @user.destroy
   end
 
   #POST /users/1/archive
@@ -91,6 +87,18 @@ class UsersController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_user
       @user = User.find(params[:id])
+    end
+
+    def is_me
+      if current_user.id != @user.id
+        head(:forbidden)
+      end
+    end
+
+    def is_archived
+      if @user.archived 
+        head(:not_found)
+      end
     end
 
     # Only allow a trusted parameter "white list" through.

@@ -1,41 +1,29 @@
 class Activity < ApplicationRecord
   include PgSearch #this is to search
   multisearchable :against => :category_id #search register by category_id
-  
-  #relations
+
   belongs_to :user
   belongs_to :category
   has_one_attached :image
   has_one :room #An activity always has one room
+  has_many :shares, :class_name => "Activity", :foreign_key => "activity_id"
+  belongs_to :original, :class_name => "Activity", :foreign_key => "activity_id", optional: true
 
-
-  #VALIDATIONS
   #validates_presence_of :user, :title, :deadline
-
   validates :user, presence: true
   validates :deadline, presence: true
   validates :title, presence: true
 
   validate :deadline_is_not_in_the_past
 
-
-  has_many :shares, :class_name => "Activity", :foreign_key => "activity_id"
-  belongs_to :original, :class_name => "Activity", :foreign_key => "activity_id", optional: true
-
-  #gems
-
   acts_as_followable
-
   acts_as_votable
-
   acts_as_commentable
-
-
 
   def shared?
     self.shared
   end
-  #methods
+
   def deadline_is_not_in_the_past
     if will_save_change_to_deadline? && deadline.present? && self.deadline < DateTime.now
 	   errors.add(:deadline, "Deadline can not be in the past")
@@ -45,10 +33,12 @@ class Activity < ApplicationRecord
   def check_status
     if self.deadline < DateTime.now
       self.status = "expired" unless (self.status == "finished" or self.status== "archived" )
+      self.room.status = "finished" unless self.room.status== "archived" 
     end
   end
 
   def add_participant(following_user)
+
     if following_user.following? self
     errors.add(:base, "Cannot join an activity you're already participating in")
     end
@@ -66,14 +56,15 @@ class Activity < ApplicationRecord
       else
         errors.add(:base, "Unknown Activity status")
       end
-      
       false
     end
+
   end
 
   def remove_paritipant(following_user)
+    
     unless following_user.following? self
-    errors.add(:base, "Cannot leave an activiy you haven't joined")
+      errors.add(:base, "Cannot leave an activiy you haven't joined")
     end
 
     if self.status == "open" #it is still open
@@ -89,7 +80,6 @@ class Activity < ApplicationRecord
       else
         errors.add(:base, "Unknown Activity status")
       end
-      
       false
     end 
   end
@@ -103,10 +93,10 @@ class Activity < ApplicationRecord
       errors.add(:base, "The activity has been archived, you cannot like it anymore")      
       false    
     end
-    
   end
 
   def unlike_post(liking_user)
+
     if self.can_like?
       self.unliked_by(liking_user)
       true
@@ -117,7 +107,6 @@ class Activity < ApplicationRecord
   end
 
   def append_comment(comment)
-
     if self.can_comment?
       if comment.save
         true
@@ -129,16 +118,16 @@ class Activity < ApplicationRecord
       errors.add(:base, "Can no longer comment on the post because the activity has been archived")
       false
     end
-    
   end
-
 
   def complete
     self.status = "finished" unless self.status == "archived"
+    self.room.status = "finished" unless self.room.status == "archived"
   end
 
   def archive
     self.status = "archived"
+    sef.room.status = "archived"
   end
 
   def creator

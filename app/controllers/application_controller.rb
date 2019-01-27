@@ -1,12 +1,6 @@
 class ApplicationController < ActionController::API
   include DeviseTokenAuth::Concerns::SetUserByToken
 
-  def after_sign_in_path_for(resource)
-		if current_user.archived
-      head(:forbidden)
-    end
-  end
-  
   before_action :configure_permitted_parameters, if: :devise_controller?
 
   protected

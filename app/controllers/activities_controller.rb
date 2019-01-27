@@ -4,10 +4,9 @@ class ActivitiesController < ApplicationController
   before_action :check_status, except: [:create, :index]
   before_action :vote_prelim, only: [:voteup, :votedown]
 
-
   # GET /activities
   def index
-    @activities = Activity.all
+    @activities = Activity.where(status: 'open')
 
     render json: ActivitySerializer.new(@activities).serialized_json
   end
@@ -64,25 +63,20 @@ class ActivitiesController < ApplicationController
 
   #POST /activities/1/like
   def like
-
     if @activity.like_post(current_user)
       render json: ActivitySerializer.new(@activity).serialized_json
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
-
-
-
   end
+
   #POST /activities/1/unlike
   def unlike
-
     if @activity.unlike_post(current_user)
       render json: ActivitySerializer.new(@activity).serialized_json
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
-
   end
 
   def voteup
@@ -92,7 +86,6 @@ class ActivitiesController < ApplicationController
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
-
   end
 
   def votedown
@@ -103,7 +96,6 @@ class ActivitiesController < ApplicationController
       render json: @activity.errors, status: :unprocessable_entity
     end
   end
-
 
   def join
     if @activity.add_participant current_user
@@ -129,18 +121,6 @@ class ActivitiesController < ApplicationController
   def archive
     @activity.archive
   end
-  
-
-
-
-
-
-
-
-
-
-
-
 
   # DELETE /activities/1
   def destroy
@@ -159,10 +139,8 @@ class ActivitiesController < ApplicationController
     end
 
     def check_status
-      puts "adios"
       @activity.check_status
     end
-
 
     def vote_prelim
       @votable_user=User.find_by(id: params[:votable_user_id])

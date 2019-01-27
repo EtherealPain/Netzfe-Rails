@@ -10,11 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< HEAD
-ActiveRecord::Schema.define(version: 2019_01_26_050707) do
-=======
-ActiveRecord::Schema.define(version: 2019_01_25_222158) do
->>>>>>> development
+ActiveRecord::Schema.define(version: 2019_01_27_025031) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -47,7 +43,7 @@ ActiveRecord::Schema.define(version: 2019_01_25_222158) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "category_id"
-    t.boolean "shared", default: false
+    t.boolean "shared"
     t.integer "activity_id"
     t.string "status", default: "open"
     t.string "title"
@@ -153,6 +149,7 @@ ActiveRecord::Schema.define(version: 2019_01_25_222158) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "activity_id"
+    t.string "status"
     t.index ["activity_id"], name: "index_rooms_on_activity_id"
   end
 
@@ -193,9 +190,7 @@ ActiveRecord::Schema.define(version: 2019_01_25_222158) do
     t.string "degree"
     t.string "phone"
     t.boolean "archived", default: false
-<<<<<<< HEAD
     t.boolean "is_admin"
-=======
     t.integer "cached_votes_total", default: 0
     t.integer "cached_votes_score", default: 0
     t.integer "cached_votes_up", default: 0
@@ -203,7 +198,6 @@ ActiveRecord::Schema.define(version: 2019_01_25_222158) do
     t.integer "cached_weighted_score", default: 0
     t.integer "cached_weighted_total", default: 0
     t.float "cached_weighted_average", default: 0.0
->>>>>>> development
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
