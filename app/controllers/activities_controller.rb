@@ -3,7 +3,6 @@ class ActivitiesController < ApplicationController
   before_action :authenticate_user!
   before_action :check_status, except: [:create, :index]
   before_action :vote_prelim, only: [:voteup, :votedown]
-  before_action :is_archived, except: [:create, :index]
   before_action :is_mine, only: [:update, :destroy]
 
   # GET /activities
@@ -141,14 +140,14 @@ class ActivitiesController < ApplicationController
     if @activity.destroy
       head(:ok)
     else
-      head(:unprocessable_entity)
+      render json: @activity.errors, status: :unprocessable_entity
     end
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_activity
-      @activity = Activity.where("id = ? AND status != ?", params[:activity_id], "archived").first
+      @activity = Activity.where("id = ? AND status != ?", params[:id], "archived").first
       if @activity.nil?
         head(:not_found)
       end
@@ -163,14 +162,8 @@ class ActivitiesController < ApplicationController
       @activity.check_status
     end
 
-    def is_archived
-      if @activity.status == "archived"
-        head(:not_found)
-      end
-    end
-
     def is_mine
-      if not current_user.activities.include?(@activity)
+      if not current_user == @activity.creator
         head(:forbidden)
       end
     end

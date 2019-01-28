@@ -106,7 +106,7 @@ class Activity < ApplicationRecord
 
   def append_comment(comment)
     if self.can_comment?
-      if comment.save
+      if comment.save!
         true
       else
         errors.add(:base, "Could not save the comment")
@@ -130,13 +130,13 @@ class Activity < ApplicationRecord
 
   def creator
     if self.activity_id.nil?
-      self.user.id 
+      self.user
     else
       u = Activity.find_by(id: self.activity_id)
       if u.nil?
         errors.add(:base, "The shared activity cannot find the source")
       else
-        u.user.id
+        u.user
       end
     end
   end

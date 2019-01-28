@@ -57,6 +57,9 @@ class CommentsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_activity
       @activity = Activity.where("id = ? AND status != ?",params[:activity_id], "archived").first
+      if @activity.nil?
+        head(:not_found)
+      end
     end
 
     def set_comment

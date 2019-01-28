@@ -1,7 +1,7 @@
 class ActivitySerializer
   include FastJsonapi::ObjectSerializer
 
-  attributes :id, :deadline, :description, :created_at, :status, :shared, :activity_id
+  attributes :id, :title, :deadline, :description, :created_at, :status, :shared, :activity_id
   belongs_to :user
 
   attribute :likes, &:cached_weighted_score
