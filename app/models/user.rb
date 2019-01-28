@@ -14,7 +14,7 @@ class User < ActiveRecord::Base
   #this line uses activestorage to store the files on a local file (for now), attached is added because it is a file
   has_one_attached :avatar
   
-  has_many :activities
+  has_many :activities, dependent: :destroy #if user is deleted your activities too
 
   #followers and following implementarion
   acts_as_follower
@@ -31,9 +31,10 @@ class User < ActiveRecord::Base
     self.archived = true
   
     self.activities.each do |c|
-      c.status = "archived" 
-      c.room.status == "archived"
+      c.update(status: "archived") 
+      c.room.update(status: "archived")
     end
+
   end
 
   def rating

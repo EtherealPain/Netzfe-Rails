@@ -5,14 +5,12 @@ class Activity < ApplicationRecord
   belongs_to :user
   belongs_to :category
   has_one_attached :image
-  has_one :room #An activity always has one room
+  has_one :room, dependent: :destroy #An activity always has one room
   has_many :shares, :class_name => "Activity", :foreign_key => "activity_id"
   belongs_to :original, :class_name => "Activity", :foreign_key => "activity_id", optional: true
 
   #validates_presence_of :user, :title, :deadline
-  validates :user, presence: true
-  validates :deadline, presence: true
-  validates :title, presence: true
+  validates :user_id, :category_id, :deadline, :title, presence: true
 
   validate :deadline_is_not_in_the_past
 
@@ -32,8 +30,8 @@ class Activity < ApplicationRecord
 
   def check_status
     if self.deadline < DateTime.now
-      self.status = "expired" unless (self.status == "finished" or self.status== "archived" )
-      self.room.status = "finished" unless self.room.status== "archived" 
+      self.update(status: "expired") unless (self.status == "finished" or self.status== "archived" )
+      self.room.update(status: "finished") unless self.room.status == "archived" 
     end
   end
 
@@ -122,12 +120,12 @@ class Activity < ApplicationRecord
 
   def complete
     self.status = "finished" unless self.status == "archived"
-    self.room.status = "finished" unless self.room.status == "archived"
+    self.room.update(status: "finished") unless self.room.status == "archived"
   end
 
   def archive
     self.status = "archived"
-    sef.room.status = "archived"
+    self.room.update(status: "archived")
   end
 
   def creator

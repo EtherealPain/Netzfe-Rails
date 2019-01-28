@@ -1,49 +1,21 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :update, :destroy, :archive, :follow, :block, :unfollow, :unblock]
+  before_action :set_user, only: [:show, :archive, :follow, :block, :unfollow, :unblock, :activity]
   before_action :authenticate_user!
-  before_action :is_me, only: [:edit, :destroy]
-  before_action :is_archived, only: :show
-  # GET /users
-  def index
-    @users = User.where(archived: false)
-
-    render json: @users
-  end
 
   # GET /users/1
   def show
     render json: UserSerializer.new(@user).serialized_json
   end
 
-  # POST /users
-  def create
-    @user = User.new(user_params)
-
-    if @user.save
-      render json: @user, status: :created, location: @user
-    else
-      render json: @user.errors, status: :unprocessable_entity
-    end
-  end
-
-  # PATCH/PUT /users/1
-  def update
-      if @user.update(user_params)
-        render json: UserSerializer.new(@user).serialized_json
-      else
-        render json: @user.errors, status: :unprocessable_entity
-      end
-  end
-
-  # DELETE /users/1
-  def destroy
-    @user.destroy
-  end
-
-  #POST /users/1/archive
+  #PATCH /users/:id/archive
   def archive
     if current_user.is_admin?
       @user.archive_user
+      if @user.save
+        head(:ok)
+      else
+        head(:unprocessable_entity)
+      end
     else
       head(:forbidden)
     end
@@ -83,20 +55,21 @@ class UsersController < ApplicationController
     head :not_found
   end
 
+  #GET users/:id/activity
+  def activity
+    @activities = @user.activities.where.not(status: 'archived').first
+    if @activities.nil?
+      head(:no_content)
+    else
+      render json: ActivitySerializer.new(@activities).serialized_json
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_user
-      @user = User.find(params[:id])
-    end
-
-    def is_me
-      if current_user.id != @user.id
-        head(:forbidden)
-      end
-    end
-
-    def is_archived
-      if @user.archived 
+      @user = User.where(id: params[:id], archived: false).first
+      if @user.nil?
         head(:not_found)
       end
     end

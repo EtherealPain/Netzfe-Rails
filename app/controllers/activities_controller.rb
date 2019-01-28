@@ -3,6 +3,8 @@ class ActivitiesController < ApplicationController
   before_action :authenticate_user!
   before_action :check_status, except: [:create, :index]
   before_action :vote_prelim, only: [:voteup, :votedown]
+  before_action :is_archived, except: [:create, :index]
+  before_action :is_mine, only: [:update, :destroy]
 
   # GET /activities
   def index
@@ -59,8 +61,6 @@ class ActivitiesController < ApplicationController
     end
   end
 
-
-
   #POST /activities/1/like
   def like
     if @activity.like_post(current_user)
@@ -115,22 +115,43 @@ class ActivitiesController < ApplicationController
 
   def complete
     @activity.complete
-    render json: ActivitySerializer.new(@activity).serialized_json
+    if @activity.save
+      render json: ActivitySerializer.new(@activity).serialized_json, status: :ok
+    else
+      render json: @activity.errors, status: :unprocessable_entity
+    end
+    
   end
 
   def archive
-    @activity.archive
+    if current_user.is_admin?
+      @activity.archive
+      if @activity.save
+        head(:ok)
+      else
+        render json: @activity.errors, status: :unprocessable_entity
+      end
+    else
+      head(:forbidden)
+    end
   end
 
   # DELETE /activities/1
   def destroy
-    @activity.destroy
+    if @activity.destroy
+      head(:ok)
+    else
+      head(:unprocessable_entity)
+    end
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_activity
-      @activity = Activity.find(params[:id])
+      @activity = Activity.where("id = ? AND status != ?", params[:activity_id], "archived").first
+      if @activity.nil?
+        head(:not_found)
+      end
     end
 
     # Only allow a trusted parameter "white list" through.
@@ -140,6 +161,18 @@ class ActivitiesController < ApplicationController
 
     def check_status
       @activity.check_status
+    end
+
+    def is_archived
+      if @activity.status == "archived"
+        head(:not_found)
+      end
+    end
+
+    def is_mine
+      if not current_user.activities.include?(@activity)
+        head(:forbidden)
+      end
     end
 
     def vote_prelim
@@ -171,5 +204,4 @@ class ActivitiesController < ApplicationController
     end
     #at the end of all this, he:
     #exists, belongs to the followers, and the current issuer is the creator of the activity
-
 end
