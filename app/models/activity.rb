@@ -27,7 +27,9 @@ class Activity < ApplicationRecord
 
   acts_as_commentable
 
-
+  def original_activity
+    self.original
+  end
 
   def shared?
     self.shared

@@ -1,8 +1,10 @@
 class ActivitySerializer
   include FastJsonapi::ObjectSerializer
 
-  attributes :id, :deadline, :description, :created_at, :status, :shared, :activity_id
+  attributes :id, :deadline, :description, :created_at, :status, :shared
   belongs_to :user
+
+  belongs_to :original, record_type: :activity, if: Proc.new { |record| !record.original.nil? }	
 
   attribute :likes, &:cached_weighted_score
 
