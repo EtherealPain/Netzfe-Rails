@@ -78,7 +78,7 @@ Rails.application.routes.draw do
     #but leaves the member routes aka #get, #update, #delete to the /comments/:id routes
     #the comments have a commentable_id that is basically a per-model index, not sure how it would work
   	end
-    resources :comments, shallow: true
+    resources :comments
   end
 
   mount_devise_token_auth_for 'User', at: 'auth', controllers: {
