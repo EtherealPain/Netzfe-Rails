@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_25_222158) do
+ActiveRecord::Schema.define(version: 2019_02_03_032221) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -105,11 +105,21 @@ ActiveRecord::Schema.define(version: 2019_01_25_222158) do
     t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
+  create_table "pg_search_documents", force: :cascade do |t|
+    t.text "content"
+    t.string "searchable_type"
+    t.bigint "searchable_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["searchable_type", "searchable_id"], name: "index_pg_search_documents_on_searchable_type_and_searchable_id"
+  end
+
   create_table "rooms", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "activity_id"
+    t.string "status", default: "open"
     t.index ["activity_id"], name: "index_rooms_on_activity_id"
   end
 
@@ -150,10 +160,7 @@ ActiveRecord::Schema.define(version: 2019_01_25_222158) do
     t.string "degree"
     t.string "phone"
     t.boolean "archived", default: false
-    t.integer "cached_votes_total", default: 0
-    t.integer "cached_votes_score", default: 0
-    t.integer "cached_votes_up", default: 0
-    t.integer "cached_votes_down", default: 0
+    t.boolean "is_admin", default: false
     t.integer "cached_weighted_score", default: 0
     t.integer "cached_weighted_total", default: 0
     t.float "cached_weighted_average", default: 0.0
