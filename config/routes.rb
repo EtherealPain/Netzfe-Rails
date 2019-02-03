@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
 
+  get 'search/search'
+
   #this routes is for conversations
   resources :rooms, except: [:create] do
     member do
@@ -18,11 +20,9 @@ Rails.application.routes.draw do
   # Serve websocket cable requests in-process
   mount ActionCable.server => '/cable'
 
-
-
   resources :users, only: :show do 
     member do
-      post 'archive'
+      patch 'archive'
       #/users/:id/archive
       post 'follow'
       #/users/:id/follow
@@ -38,35 +38,33 @@ Rails.application.routes.draw do
       #GET users/:id/followers
       get 'following'
       #GET users/:id/following
+      get 'activities'
+      #GEt users/:id/activities
     end
   end
+
   resources :categories
 
   resources :activities do
-
-    
   #/activities 
   	member do
   	#/activities/:id
-
-
       post 'join'
       #POST /activities/:id/join
-      post 'leave'
-      #POST /activities/:id/leave
-      post 'finish'
-      #POST /activities/:id/finish
-      
+      delete 'leave'
+      #DELETE /activities/:id/leave
+      patch 'complete'
+      #PATCH /activities/:id/complete
+      patch 'archive'
+      #PATCH 'activities/:id/archive
       
       #for likes
   		post 'like'
   		#POST /activities/:id/like
   		post 'unlike'
-
       #POST /activities/:id/unlike
       post 'share'
-
-  		#POST /activities/:id/unlike
+  		#POST /activities/:id/share
 
       #post 'voteup/:votable_user_id' => 'activities#voteup'
       post 'voteup'
@@ -83,19 +81,10 @@ Rails.application.routes.draw do
     resources :comments, shallow: true
   end
 
-
-
-   
-  
-
-
-
-	
-
   mount_devise_token_auth_for 'User', at: 'auth', controllers: {
     registrations: 'registrations',
+    sessions: 'sessions'
   }
   
-
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end

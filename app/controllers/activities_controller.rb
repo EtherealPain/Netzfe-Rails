@@ -1,27 +1,34 @@
 class ActivitiesController < ApplicationController
+  prepend_before_action :set_activity_original, only: [:update, :like, :unlike, :voteup, :votedown, :join, :share, :archive, :complete]
+  prepend_before_action :set_activity_shared, only: [:show,:destroy]
+  prepend_before_action :authenticate_user!
 
-  before_action :set_activity, only: [:show, :update, :destroy, :like, :unlike, :voteup, :votedown, :join, :share, :archive, :complete]
-  before_action :authenticate_user!
-  before_action :check_status, except: :create
+  #prepend is used so the before_action is added  before the beginning of the chain 
+  before_action :check_status, except: [:create, :index]
   before_action :vote_prelim, only: [:voteup, :votedown]
-
+  before_action :is_mine, only: [:update, :destroy, :complete, :archive]
+  before_action :private_chat_prelim, only: [:join, :leave]
 
   # GET /activities
   def index
-    @activities = Activity.all
+    
+    @activities = Activity.where('status' => ['open','finished'],
+                                  'user_id' => current_user.following_by_type('User')
+                                ).or(Activity.where(user_id: current_user, status: ['open','finished'])).page( params[:page])
 
-    render json: ActivitySerializer.new(@activities).serialized_json
+    render json: ActivitySerializer.new(@activities,{include: [:original]}).serialized_json
+
   end
 
   # GET /activities/1
   def show
-    render json: ActivitySerializer.new(@activity).serialized_json
+    render json: ActivitySerializer.new(@activity, {include: [:original]}).serialized_json
   end
 
   # POST /activities
   def create
     @activity = current_user.activities.new(activity_params)
-    #this line automatically makes the current logged in user as the owner (creator) of an activity
+    #thiline automatically makes the current logged in user as the owner (creator) of an activity
     #it's probably not necessary to add the owner of the activity on the body
     #it also helps prevent forgery, you can't upload an activity using somebody's else's identity
     
@@ -48,52 +55,55 @@ class ActivitiesController < ApplicationController
   # POST /activities/:id/share
   #This is for share the activity, we need to clone or duplicate the activity but we need change user_id 
   def share
-    @activity_clone = Activity.new 
+    
+    @activity_clone = Activity.new
     @activity_clone = @activity.dup
+    @activity_clone.activity_id = @activity.id
     @activity_clone.user_id = current_user.id
     @activity_clone.shared = true 
-    @activity_clone.activity_id = @activity.id
+    
 
     if @activity_clone.save
-      render json: ActivitySerializer.new(@activity_clone).serialized_json, status: :created, location: @activity_clone
+      render json: ActivitySerializer.new(@activity_clone, {include: [:original]}).serialized_json, status: :created, location: @activity_clone
     else
       render json: @activity_clone.errors, status: :unprocessable_entity
     end
   end
 
-
-
   #POST /activities/1/like
   def like
 
     if @activity.like_post(current_user)
-      render json: ActivitySerializer.new(@activity).serialized_json
+      render json: ActivitySerializer.new(@activity, {include: [:original]}).serialized_json
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
-
-
-
+  
   end
+
   #POST /activities/1/unlike
   def unlike
 
     if @activity.unlike_post(current_user)
-      render json: ActivitySerializer.new(@activity).serialized_json
+      render json: ActivitySerializer.new(@activity, {include: [:original]}).serialized_json
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
-
   end
 
   def voteup
     if @activity.errors.empty?
       @votable_user.liked_by @activity, :vote_weight => params['vote_weight'].to_i
-      render json: UserSerializer.new(@votable_user).serialized_json
+
+      if @votable_user.save
+        render json: UserSerializer.new(@votable_user).serialized_json
+      else
+        render json: @votable_user.errors, status: :unprocessable_entity
+      end
+
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
-
   end
 
   def votedown
@@ -104,7 +114,6 @@ class ActivitiesController < ApplicationController
       render json: @activity.errors, status: :unprocessable_entity
     end
   end
-
 
   def join
     if @activity.add_participant current_user
@@ -124,59 +133,92 @@ class ActivitiesController < ApplicationController
 
   def complete
     @activity.complete
-    render json: ActivitySerializer.new(@activity).serialized_json
+    if @activity.save
+      render json: ActivitySerializer.new(@activity).serialized_json, status: :ok
+    else
+      render json: @activity.errors, status: :unprocessable_entity
+    end
+    
   end
 
   def archive
-    @activity.archive
+    if current_user.is_admin?
+      @activity.archive
+      if @activity.save
+        head(:ok)
+      else
+        render json: @activity.errors, status: :unprocessable_entity
+      end
+    else
+      head(:forbidden)
+    end
   end
-  
-
-
-
-
-
-
-
-
-
-
-
 
   # DELETE /activities/1
   def destroy
-    @activity.destroy
+    if @activity.destroy
+      head(:ok)
+    else
+      render json: @activity.errors, status: :unprocessable_entity
+    end
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
-    def set_activity
-      @activity = Activity.find(params[:id])
+    def set_activity_original
+      @activity = Activity.where("id = ? AND status != ?", params[:id], "archived").first
+      if @activity.nil?
+        head(:not_found)
+      end
+
+      if @activity.shared?
+        @activity = @activity.original
+      end
+
+
+    end
+
+
+    def set_activity_shared
+      @activity = Activity.where("id = ? AND status != ?", params[:id], "archived").first
+      if @activity.nil?
+        head(:not_found)
+      end
     end
 
     # Only allow a trusted parameter "white list" through.
     def activity_params
-      params.require(:activity).permit(:deadline, :description, :category_id, :image, :title)
+      params.require(:activity).permit(:deadline, :description, :category_id, :image, :title, :page)
     end
 
     def check_status
-      puts "adios"
       @activity.check_status
     end
 
+    def is_mine
+      if not current_user == @activity.creator
+        head(:forbidden)
+      end
+    end
+
+    def private_chat_prelim
+      #TODO
+    end
+
     def vote_prelim
+
       @votable_user=User.find_by(id: params[:votable_user_id])
       if @votable_user.nil?
         @activity.errors.add(:base, "User not found")
       else #if it's not nil
         if @votable_user.following? @activity #is he part of the follower list?
-            
+          
           unless current_user == @activity.creator #is the current issuer the creator?
-            @activity.errors.add(:base, "Cannot vote on users if you are not the creator") 
+            @activity.errors.add(:base, "Cannot vote on users if you are not the creator")
+          end
         else  #he is not a participant
           @activity.errors.add(:base, "Cannot vote on users who did not participate on the activity")
           #if you are not the creator you should NOT be voting on users
-          end
           #the user is not part of the selection
         end
       end
@@ -189,9 +231,8 @@ class ActivitiesController < ApplicationController
       #verify if voting is available
       unless @activity.can_vote?
         @activity.errors.add(:base, "The activity has not ended, you cannot vote on users yet.")
-      end
+      end   
     end
     #at the end of all this, he:
     #exists, belongs to the followers, and the current issuer is the creator of the activity
-
 end

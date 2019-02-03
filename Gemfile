@@ -23,10 +23,13 @@ gem 'devise_token_auth'
 # required for token authentication with the angular mobile app
 gem 'omniauth'
 
+gem 'kaminari'
 
 gem 'acts_as_votable', '~> 0.12.0'
 #act as votable is used to facilitate liking functionality
 
+#For the search methods
+gem 'pg_search'
 
 gem 'fast_jsonapi'
 gem 'oj'

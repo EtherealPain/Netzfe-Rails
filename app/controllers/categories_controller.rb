@@ -1,9 +1,11 @@
 class CategoriesController < ApplicationController
+  before_action :authenticate_user!
+  before_action :only_admin, only: [:update, :destroy, :create]
   before_action :set_category, only: [:show, :update, :destroy]
-
+  
   # GET /categories
   def index
-    @categories = Category.all
+    @categories = Category.where(status: 1)
 
     render json: @categories
   end
@@ -35,13 +37,23 @@ class CategoriesController < ApplicationController
 
   # DELETE /categories/1
   def destroy
-    @category.destroy
+    if @category.update(status: 0)
+      head(:ok)
+    else
+      head(:unprocessable_entity)
+    end
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_category
       @category = Category.find(params[:id])
+    end
+
+    def only_admin
+      if not current_user.is_admin?
+        head(:forbidden)
+      end
     end
 
     # Only allow a trusted parameter "white list" through.
