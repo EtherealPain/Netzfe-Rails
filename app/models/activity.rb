@@ -160,4 +160,8 @@ class Activity < ApplicationRecord
     self.root_comments
   end
 
+  def comments_number
+    self.root_comments.size
+  end
+
 end

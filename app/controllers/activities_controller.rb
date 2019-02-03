@@ -22,7 +22,7 @@ class ActivitiesController < ApplicationController
 
   # GET /activities/1
   def show
-    render json: ActivitySerializer.new(@activity, {include: [:original]}).serialized_json
+    render json: ActivitySerializer.new(@activity, {params: {current_user: current_user},include: [:original]}).serialized_json
   end
 
   # POST /activities
@@ -74,7 +74,7 @@ class ActivitiesController < ApplicationController
   def like
 
     if @activity.like_post(current_user)
-      render json: ActivitySerializer.new(@activity, {include: [:original]}).serialized_json
+      render json: ActivitySerializer.new(@activity, {params: {current_user: current_user},include: [:original]}).serialized_json
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
@@ -85,7 +85,7 @@ class ActivitiesController < ApplicationController
   def unlike
 
     if @activity.unlike_post(current_user)
-      render json: ActivitySerializer.new(@activity, {include: [:original]}).serialized_json
+      render json: ActivitySerializer.new(@activity, {params: {current_user: current_user},include: [:original]}).serialized_json
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
@@ -188,7 +188,7 @@ class ActivitiesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def activity_params
-      params.require(:activity).permit(:deadline, :description, :category_id, :image, :title, :page)
+      params.permit(:deadline, :description, :category_id, :image, :title, :page)
     end
 
     def check_status
