@@ -3,7 +3,10 @@ class ActivitySerializer
 
   attributes :id, :title, :deadline, :description, :created_at, :status, :shared, :activity_id
 
-  belongs_to :user
+  
+  attributes :user do |activity|
+    { user_id: activity.user.id, first_name: activity.user.first_name, last_name: activity.user.last_name}
+  end
 
   belongs_to :original, record_type: :activity, id_method_name: :original_activity_id, serializer: ActivitySerializer ,if: Proc.new { |record| !record.original_activity.nil? }	
 

@@ -43,7 +43,7 @@ ActiveRecord::Schema.define(version: 2019_02_03_032221) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "category_id"
-    t.boolean "shared", default: false
+    t.boolean "shared"
     t.integer "activity_id"
     t.string "status", default: "open"
     t.string "title"
@@ -56,6 +56,36 @@ ActiveRecord::Schema.define(version: 2019_02_03_032221) do
     t.float "cached_weighted_average", default: 0.0
     t.index ["category_id"], name: "index_activities_on_category_id"
     t.index ["user_id"], name: "index_activities_on_user_id"
+  end
+
+  create_table "admins", force: :cascade do |t|
+    t.string "provider", default: "email", null: false
+    t.string "uid", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.boolean "allow_password_change", default: false
+    t.datetime "remember_created_at"
+    t.integer "sign_in_count", default: 0, null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string "current_sign_in_ip"
+    t.string "last_sign_in_ip"
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
+    t.string "name"
+    t.string "nickname"
+    t.string "image"
+    t.string "email"
+    t.json "tokens"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["confirmation_token"], name: "index_admins_on_confirmation_token", unique: true
+    t.index ["email"], name: "index_admins_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_admins_on_reset_password_token", unique: true
+    t.index ["uid", "provider"], name: "index_admins_on_uid_and_provider", unique: true
   end
 
   create_table "categories", force: :cascade do |t|
@@ -119,7 +149,7 @@ ActiveRecord::Schema.define(version: 2019_02_03_032221) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "activity_id"
-    t.string "status", default: "open"
+    t.string "status"
     t.index ["activity_id"], name: "index_rooms_on_activity_id"
   end
 
@@ -160,7 +190,7 @@ ActiveRecord::Schema.define(version: 2019_02_03_032221) do
     t.string "degree"
     t.string "phone"
     t.boolean "archived", default: false
-    t.boolean "is_admin", default: false
+    t.boolean "is_admin"
     t.integer "cached_weighted_score", default: 0
     t.integer "cached_weighted_total", default: 0
     t.float "cached_weighted_average", default: 0.0
