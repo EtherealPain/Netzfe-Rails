@@ -47,7 +47,10 @@ class CategoriesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_category
-      @category = Category.find(params[:id])
+      @category = Category.where(status: 1, id: params[:id]).first
+      if @category.nil?
+        head(:not_found)
+      end
     end
 
     def only_admin

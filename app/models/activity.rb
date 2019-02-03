@@ -113,15 +113,10 @@ class Activity < ApplicationRecord
   end
 
   def append_comment(comment)
-    if self.can_comment?
-      if comment.save!
-        true
-      else
-        errors.add(:base, "Could not save the comment")
-        false
-      end
+    if comment.save!
+      true
     else
-      errors.add(:base, "Can no longer comment on the post because the activity has been archived")
+      errors.add(:base, "Could not save the comment")
       false
     end
   end
@@ -158,10 +153,6 @@ class Activity < ApplicationRecord
   end
 
   def can_like?
-    self.status != "archived"
-  end
-
-  def can_comment?
     self.status != "archived"
   end
 
