@@ -25,43 +25,43 @@ class UsersController < ApplicationController
   def follow
     current_user.follow(@user)
     Notification.create(notify_type: 'follow', actor: current_user, user: @user)
-    render json: UserSerializer.new(@user).serialized_json
+    render json: @user
   end
 
   #POST /users/:id/unfollow
   def unfollow
     current_user.stop_following(@user)
-    render json: UserSerializer.new(@user).serialized_json
+    render json: @user
   end
 
   #POST /users/:id/block
   def block
     current_user.block(@user)
-    render json: UserSerializer.new(@user).serialized_json
+    render json: @user
   end
 
   #POST /users/:id/unblock
   def unblock
     current_user.unblock(@user)
-    render json: UserSerializer.new(@user).serialized_json
+    render json: @user
   end
 
   #GET users/:id/followers
   def followers
    @followers = @user.followers_by_type("User")
-   render json: UserSerializer.new(@followers).serialized_json
+   render json: @followers
   end
 
   #GET users/:id/following
   def following
    @following = @user.following_by_type("User")
-   render json: UserSerializer.new(@following).serialized_json
+   render json: @following
   end
 
   #GET users/:id/activities
   def activities
     @activities = Activity.where(user_id: @user, status: ['open','finished','expired']).page( params[:page])
-    render json: ActivitySerializer.new(@activities,{include: [:original]}).serialized_json
+    render json: @activities
   end
 
   private
