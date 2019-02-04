@@ -114,6 +114,9 @@ GEM
       mini_portile2 (~> 2.4.0)
     nokogiri (1.9.1-x64-mingw32)
       mini_portile2 (~> 2.4.0)
+    notifications (0.6.1)
+      kaminari (>= 0.15)
+      rails (>= 5)
     oj (3.7.6)
     omniauth (1.9.0)
       hashie (>= 3.4.6, < 3.7.0)
@@ -191,6 +194,7 @@ DEPENDENCIES
   devise_token_auth
   fast_jsonapi
   kaminari
+  notifications
   oj
   omniauth
   pg (>= 0.18, < 2.0)

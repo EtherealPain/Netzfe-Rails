@@ -22,6 +22,8 @@ gem 'puma', '~> 3.11'
 gem 'devise_token_auth'
 # required for token authentication with the angular mobile app
 gem 'omniauth'
+#Notifications gem
+gem 'notifications'
 
 gem 'kaminari'
 

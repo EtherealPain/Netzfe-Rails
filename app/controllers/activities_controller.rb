@@ -64,6 +64,7 @@ class ActivitiesController < ApplicationController
     
 
     if @activity_clone.save
+      Notification.create(notify_type: 'share', actor: current_user, user: @activity.user)
       render json: ActivitySerializer.new(@activity_clone, {include: [:original]}).serialized_json, status: :created, location: @activity_clone
     else
       render json: @activity_clone.errors, status: :unprocessable_entity
@@ -169,15 +170,10 @@ class ActivitiesController < ApplicationController
       @activity = Activity.where("id = ? AND status != ?", params[:id], "archived").first
       if @activity.nil?
         head(:not_found)
-      end
-
-      if @activity.shared?
+      elsif @activity.shared?
         @activity = @activity.original
       end
-
-
     end
-
 
     def set_activity_shared
       @activity = Activity.where("id = ? AND status != ?", params[:id], "archived").first
