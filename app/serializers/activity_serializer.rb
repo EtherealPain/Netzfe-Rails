@@ -17,7 +17,6 @@ class ActivitySerializer < ActiveModel::Serializer
 
   has_one :creator, if: :is_shared, serializer: ShortUserSerializer
              
-
   belongs_to :user, serializer: ShortUserSerializer
 
 

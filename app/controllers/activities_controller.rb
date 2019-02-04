@@ -22,7 +22,7 @@ class ActivitiesController < ApplicationController
 
   # GET /activities/1
   def show
-    render json: @activity, serializer: ActivityWithCommentsSerializer, include: 'comments'
+    render json: @activity, serializer: ActivityWithCommentsSerializer
   end
 
   # POST /activities
