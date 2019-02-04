@@ -13,7 +13,7 @@ class SearchController < ApplicationController
         end
       end
       if !@users.first.nil?
-        render json: UserSerializer.new(@users), status: :ok
+        render json: @users, status: :ok
       else
         head(:not_found)
       end
@@ -29,7 +29,7 @@ class SearchController < ApplicationController
       if @activities.first.nil?
         head(:not_found) 
       else
-        render json: ActivitySerializer.new(@activities,{include: [:original]}).serialized_json, status: :ok
+        render json: @activities, status: :ok
       end
     end
   end
