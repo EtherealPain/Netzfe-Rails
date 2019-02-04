@@ -64,6 +64,7 @@ class ActivitiesController < ApplicationController
     
 
     if @activity_clone.save
+      @activity.notifications(current_user,'share')
       render json: @activity_clone, status: :created, location: @activity_clone
     else
       render json: @activity_clone.errors, status: :unprocessable_entity
@@ -74,6 +75,7 @@ class ActivitiesController < ApplicationController
   def like
 
     if @activity.like_post(current_user)
+      @activity.notifications(current_user,'like') #unless @activity.voted_on_by? current_user
       render json: @activity, status: :ok
     else
       render json: @activity.errors, status: :unprocessable_entity
@@ -121,6 +123,7 @@ class ActivitiesController < ApplicationController
 
   def join
     if @activity.add_participant current_user
+      @activity.notifications(current_user,'join')
       render json: @activity
     else
       render json: @activity.errors, status: :unprocessable_entity
@@ -138,6 +141,7 @@ class ActivitiesController < ApplicationController
   def complete
     @activity.complete
     if @activity.save
+      @activity.notifications(current_user,'finish')
       render json: ActivitySerializer.new(@activity).serialized_json, status: :ok
     else
       render json: @activity.errors, status: :unprocessable_entity
@@ -149,6 +153,7 @@ class ActivitiesController < ApplicationController
     if current_user.is_admin?
       @activity.archive
       if @activity.save
+        @activity.notifications(current_user,'archive')
         head(:ok)
       else
         render json: @activity.errors, status: :unprocessable_entity
@@ -173,15 +178,10 @@ class ActivitiesController < ApplicationController
       @activity = Activity.where("id = ? AND status != ?", params[:id], "archived").first
       if @activity.nil?
         head(:not_found)
-      end
-
-      if @activity.shared?
+      elsif @activity.shared?
         @activity = @activity.original
       end
-
-
     end
-
 
     def set_activity_shared
       @activity = Activity.where("id = ? AND status != ?", params[:id], "archived").first

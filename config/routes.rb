@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
 
-  get 'search/search'
+  mount Notifications::Engine => "/notifications"
+  #this is for search methods, They could be Post method too.
+  get 'search/search_category'
+  get 'search/search_user'
 
   #this routes is for conversations
   resources :rooms, except: [:create] do

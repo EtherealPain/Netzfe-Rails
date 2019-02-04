@@ -159,6 +159,14 @@ class Activity < ApplicationRecord
   def comments
     self.root_comments
   end
+  
+  def notifications(actor,type)
+    Notification.create(
+      notify_type: type,
+      actor: actor,
+      user: self.user,
+      target: self)
+  end
 
   def comments_number
     self.root_comments.size

@@ -18,7 +18,14 @@ class ActivitySerializer < ActiveModel::Serializer
   has_one :creator, if: :is_shared, serializer: ShortUserSerializer
              
 
+<<<<<<< HEAD
   belongs_to :user, serializer: ShortUserSerializer
+=======
+  
+  attributes :user do |activity|
+    { user_id: activity.user.id, first_name: activity.user.first_name, last_name: activity.user.last_name}
+  end
+>>>>>>> origin/search
 
 
   def title

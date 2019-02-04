@@ -23,6 +23,9 @@ gem 'devise_token_auth'
 # required for token authentication with the angular mobile app
 gem 'omniauth'
 
+#Notifications gem
+gem 'notifications'
+
 gem 'kaminari'
 
 gem 'acts_as_votable', '~> 0.12.0'
