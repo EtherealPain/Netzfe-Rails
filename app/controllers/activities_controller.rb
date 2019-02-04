@@ -64,7 +64,7 @@ class ActivitiesController < ApplicationController
     
 
     if @activity_clone.save
-      Notification.create(notify_type: 'share', actor: current_user, user: @activity.user)
+      @activity.notifications(current_user,'share')
       render json: ActivitySerializer.new(@activity_clone, {include: [:original]}).serialized_json, status: :created, location: @activity_clone
     else
       render json: @activity_clone.errors, status: :unprocessable_entity
@@ -75,6 +75,7 @@ class ActivitiesController < ApplicationController
   def like
 
     if @activity.like_post(current_user)
+      @activity.notifications(current_user,'like')
       render json: ActivitySerializer.new(@activity, {include: [:original]}).serialized_json
     else
       render json: @activity.errors, status: :unprocessable_entity
@@ -118,6 +119,7 @@ class ActivitiesController < ApplicationController
 
   def join
     if @activity.add_participant current_user
+      @activity.notifications(current_user,'join')
       render json: ActivitySerializer.new(@activity).serialized_json
     else
       render json: @activity.errors, status: :unprocessable_entity
@@ -135,6 +137,7 @@ class ActivitiesController < ApplicationController
   def complete
     @activity.complete
     if @activity.save
+      @activity.notifications(current_user,'finish')
       render json: ActivitySerializer.new(@activity).serialized_json, status: :ok
     else
       render json: @activity.errors, status: :unprocessable_entity
@@ -146,6 +149,7 @@ class ActivitiesController < ApplicationController
     if current_user.is_admin?
       @activity.archive
       if @activity.save
+        @activity.notifications(current_user,'archive')
         head(:ok)
       else
         render json: @activity.errors, status: :unprocessable_entity

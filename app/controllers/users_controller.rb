@@ -24,6 +24,7 @@ class UsersController < ApplicationController
   #POST /users/:id/follow
   def follow
     current_user.follow(@user)
+    Notification.create(notify_type: 'follow', actor: current_user, user: @user)
     render json: UserSerializer.new(@user).serialized_json
   end
 

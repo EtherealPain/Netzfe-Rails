@@ -7,6 +7,13 @@ module Notifications
       Notification.read!(unread_ids)
 
       @notification_groups = @notifications.group_by { |note| note.created_at.to_date }
+
+      if @notification_groups.first.nil?
+        head(:no_content)
+      else
+        render json: @notification_groups, status: :ok
+      end
+
     end
 
     def clean
