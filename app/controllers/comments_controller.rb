@@ -1,26 +1,31 @@
 class CommentsController < ApplicationController
-  before_action :set_activity, only: [:index, :create, :show, :update, :destroy]
-  before_action :set_comment, only: [:show, :update, :destroy]
+  before_action :set_activity, only: [:index, :create, :update, :destroy]
+  #I decided to call this before action on update and destroy, 
+  #just to check the status of the activity, in case it is disabled the 
+  #comments should not be allowed to be edited or deleted
+  
+  prepend_before_action :set_comment, only: [:show, :update, :destroy]
   before_action :authenticate_user!
+  before_action :is_mine, only: [:destroy, :update]
 
   # GET /activities/:id/comments
   def index
     @comments = @activity.root_comments
 
-    render json: ActivitySerializer.new(@activity).serialized_json
+    render json: @comments
   end
 
   # GET /comments/1
   def show
-    render json: CommentSerializer.new(@comment).serialized_json
+    render json: @comment
   end
 
   # POST /activities/:id/comments
   def create
-    @comment = Comment.build_from(@activity, current_user.id, params[:comments][:body])
+    @comment = Comment.build_from(@activity, current_user.id, params[:body])
     
     if @activity.append_comment(@comment)
-      render json: ActivitySerializer.new(@activity).serialized_json, status: :created, location: @activity
+      render json: @activity.root_comments
     else
       render json: @comment.errors, status: :unprocessable_entity
     end
@@ -30,7 +35,7 @@ class CommentsController < ApplicationController
   # PATCH/PUT /comments/1
   def update
     if @comment.update(comment_params)
-      render json: ActivitySerializer.new(@activity).serialized_json
+      render json: @comment
     else
       render json: @comment.errors, status: :unprocessable_entity
     end
@@ -48,18 +53,32 @@ class CommentsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_activity
-      @activity = Activity.where("id = ? AND status != ?",params[:activity_id], "archived").first
+      if params[:id].nil?
+        @activity = Activity.where("id = ? AND status != ?",params[:activity_id], "archived").first
+      else 
+        @activity = Activity.where("id = ? AND status != ?", @comment.commentable_id, "archived").first
+      end
+
       if @activity.nil?
         head(:not_found)
       end
     end
 
     def set_comment
-      @comment = @activity.root_comments.find(params[:id])
+      @comment = Comment.find(params[:id])
+      if @comment.nil?
+        head(:not_found)
+      end
+    end
+
+    def is_mine
+      if not current_user == @comment.user
+        head(:forbidden)
+      end
     end
 
     # Only allow a trusted parameter "white list" through.
     def comment_params
-      params.require(:comments).permit(:activity_id, :body)
+      params.permit(:id, :activity_id, :body)
     end
 end

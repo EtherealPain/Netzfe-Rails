@@ -4,7 +4,7 @@ class UsersController < ApplicationController
 
   # GET /users/1
   def show
-    render json: UserSerializer.new(@user).serialized_json
+    render json: @user, serializer: UserFullSerializer
   end
 
   #PATCH /users/:id/archive
@@ -24,6 +24,7 @@ class UsersController < ApplicationController
   #POST /users/:id/follow
   def follow
     current_user.follow(@user)
+    Notification.create(notify_type: 'follow', actor: current_user, user: @user)
     render json: UserSerializer.new(@user).serialized_json
   end
 
@@ -74,6 +75,6 @@ class UsersController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def user_params
-      params.require(:user).permit(:first_name, :last_name, :date_of_birth, :degree, :avatar, :phone, :page)
+      params.permit(:first_name, :last_name, :date_of_birth, :degree, :avatar, :phone, :page)
     end
 end
