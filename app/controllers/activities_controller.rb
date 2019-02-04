@@ -16,13 +16,13 @@ class ActivitiesController < ApplicationController
                                   'user_id' => current_user.following_by_type('User')
                                 ).or(Activity.where(user_id: current_user, status: ['open','finished'])).page( params[:page])
 
-    render json: ActivitySerializer.new(@activities,{include: [:original]}).serialized_json
+    render json: @activities
 
   end
 
   # GET /activities/1
   def show
-    render json: ActivitySerializer.new(@activity, {include: [:original]}).serialized_json
+    render json: @activity, serializer: ActivityWithCommentsSerializer, include: 'comments'
   end
 
   # POST /activities
@@ -37,7 +37,7 @@ class ActivitiesController < ApplicationController
       @room = Room.new(name: @activity.description, activity: @activity)
       @room.users << @activity.user
       @room.save
-      render json: ActivitySerializer.new(@activity).serialized_json, status: :created, location: @activity
+      render json: @activity, status: :created, location: @activity
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
@@ -46,7 +46,7 @@ class ActivitiesController < ApplicationController
   # PATCH/PUT /activities/1
   def update
     if @activity.update(activity_params)
-      render json: ActivitySerializer.new(@activity).serialized_json
+      render json: @activity
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
@@ -64,7 +64,8 @@ class ActivitiesController < ApplicationController
     
 
     if @activity_clone.save
-      render json: ActivitySerializer.new(@activity_clone, {include: [:original]}).serialized_json, status: :created, location: @activity_clone
+      @activity.notifications(current_user,'share')
+      render json: @activity_clone, status: :created, location: @activity_clone
     else
       render json: @activity_clone.errors, status: :unprocessable_entity
     end
@@ -74,7 +75,8 @@ class ActivitiesController < ApplicationController
   def like
 
     if @activity.like_post(current_user)
-      render json: ActivitySerializer.new(@activity, {include: [:original]}).serialized_json
+      @activity.notifications(current_user,'like') #unless @activity.voted_on_by? current_user
+      render json: @activity, status: :ok
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
@@ -85,7 +87,7 @@ class ActivitiesController < ApplicationController
   def unlike
 
     if @activity.unlike_post(current_user)
-      render json: ActivitySerializer.new(@activity, {include: [:original]}).serialized_json
+      render json: @activity
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
@@ -96,7 +98,7 @@ class ActivitiesController < ApplicationController
       @votable_user.liked_by @activity, :vote_weight => params['vote_weight'].to_i
 
       if @votable_user.save
-        render json: UserSerializer.new(@votable_user).serialized_json
+        render json: @votable_user
       else
         render json: @votable_user.errors, status: :unprocessable_entity
       end
@@ -107,9 +109,13 @@ class ActivitiesController < ApplicationController
   end
 
   def votedown
+    head :not_found
+    #THIS METHOD HAS BEEN DISABLED
+
+
     if @activity.errors.empty?
       @votable_user.downvote_from @activity, :vote_weight => params['vote_weight'].to_i
-      render json: UserSerializer.new(@votable_user).serialized_json
+      render json: @votable_user.serialized_json
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
@@ -117,7 +123,8 @@ class ActivitiesController < ApplicationController
 
   def join
     if @activity.add_participant current_user
-      render json: ActivitySerializer.new(@activity).serialized_json
+      @activity.notifications(current_user,'join')
+      render json: @activity
     else
       render json: @activity.errors, status: :unprocessable_entity
     end
@@ -134,6 +141,7 @@ class ActivitiesController < ApplicationController
   def complete
     @activity.complete
     if @activity.save
+      @activity.notifications(current_user,'finish')
       render json: ActivitySerializer.new(@activity).serialized_json, status: :ok
     else
       render json: @activity.errors, status: :unprocessable_entity
@@ -145,6 +153,7 @@ class ActivitiesController < ApplicationController
     if current_user.is_admin?
       @activity.archive
       if @activity.save
+        @activity.notifications(current_user,'archive')
         head(:ok)
       else
         render json: @activity.errors, status: :unprocessable_entity
@@ -169,15 +178,10 @@ class ActivitiesController < ApplicationController
       @activity = Activity.where("id = ? AND status != ?", params[:id], "archived").first
       if @activity.nil?
         head(:not_found)
-      end
-
-      if @activity.shared?
+      elsif @activity.shared?
         @activity = @activity.original
       end
-
-
     end
-
 
     def set_activity_shared
       @activity = Activity.where("id = ? AND status != ?", params[:id], "archived").first
@@ -188,7 +192,7 @@ class ActivitiesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def activity_params
-      params.require(:activity).permit(:deadline, :description, :category_id, :image, :title, :page)
+      params.permit(:deadline, :description, :category_id, :image, :title, :page)
     end
 
     def check_status

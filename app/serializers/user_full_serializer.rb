@@ -1,4 +1,4 @@
-class UserSerializer < ActiveModel::Serializer
+class UserFullSerializer < ActiveModel::Serializer
   attributes :id, 
   			:avatar, 
   			:date_of_birth,
@@ -12,6 +12,19 @@ class UserSerializer < ActiveModel::Serializer
   			:phone,
   			:rating,
   			:uid
+
+  has_many :follower_list, serializer: ShortUserSerializer
+  has_many :following_list, serializer: ShortUserSerializer
+
+
+
+  def follower_list
+  	object.user_followers
+  end
+
+  def following_list
+  	object.following_users
+  end
 
   def followers
   	object.count_user_followers

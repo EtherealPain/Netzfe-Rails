@@ -1,4 +1,5 @@
-class ActivitySerializer < ActiveModel::Serializer
+class ActivityWithCommentsSerializer < ActiveModel::Serializer
+  type :activity
   attributes :id,
            :title,
            :description,
@@ -17,9 +18,8 @@ class ActivitySerializer < ActiveModel::Serializer
 
   has_one :creator, if: :is_shared, serializer: ShortUserSerializer
              
-
+  has_many :comments, serializer: CommentSerializer
   belongs_to :user, serializer: ShortUserSerializer
-
 
 
   def title
@@ -95,6 +95,13 @@ class ActivitySerializer < ActiveModel::Serializer
     end
   end
 
+  def comments
+    if object.shared?
+      object.original.comments
+    else
+      object.comments
+    end
+  end
 
 
 end
