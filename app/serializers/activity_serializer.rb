@@ -1,43 +1,99 @@
-class ActivitySerializer
-  include FastJsonapi::ObjectSerializer
+class ActivitySerializer < ActiveModel::Serializer
+  attributes :id,
+           :title,
+           :description,
+           :category,
+           :image,
+           :deadline,
+           :created_at,
+           :like_number,
+           :comment_number,
+           :shared_number,
+           :is_subscribed,
+           :is_liked,
+           :is_shared,
+           :status,
+           :original_id
 
-  attributes :id, :title, :deadline, :description, :created_at, :status, :shared, :activity_id
+  has_one :creator, if: :is_shared, serializer: ShortUserSerializer
+             
 
-  belongs_to :original, record_type: :activity, id_method_name: :original_activity_id, serializer: ActivitySerializer ,if: Proc.new { |record| !record.original_activity.nil? }	
+  belongs_to :user, serializer: ShortUserSerializer
 
-  attribute :user, serializer: UserSimpleSerializer
 
-  attribute :likes do |object|
-  	object.get_likes.size
+  def title
+    object.shared? ? object.original.title : object.title
   end
 
-  attribute :is_liked do |object, params|
-  	object.voted_on_by? params[:current_user]
+  def description
+    object.shared? ? object.original.description : object.description
   end
 
-  attribute :is_suscribed do |object, params|
-  	params[:current_user].following? object
+  def category
+    object.shared? ? object.original.category.description :  object.category.description
   end
 
-
-  attribute :subscribers do |object|
-  	object.followers_by_type('User').size
+  def image
+    if object.shared?
+      Rails.application.routes.url_helpers.rails_blob_path(object.original.image, only_path: true) if object.original.image.attachment
+    else
+      Rails.application.routes.url_helpers.rails_blob_path(object.image, only_path: true) if object.image.attachment
+    end
   end
 
-  attribute :comments_number 
-
-  attribute :image do |object|
-  	Rails.application.routes.url_helpers.rails_blob_path(object.image, only_path: true) if object.image.attachment
+  def deadline
+    object.shared? ? object.original.deadline : object.deadline
   end
 
-  attribute :comments #a method
+  def like_number
+    object.shared? ? object.original.get_likes.size : object.get_likes.size
+  end
 
-  has_many :shares
+  def is_subscribed
+    if object.shared?
+      current_user.following? object.original
+    else
+      current_user.following? object
+    end
+  end
 
-  #attribute :original, serializer: ActivitySerializer
+  def is_liked
+    if object.shared?
+      object.original.voted_on_by? current_user
+    else
+      object.voted_on_by? current_user
+    end
+    
+  end
 
+  def comment_number
+    if object.shared?
+      object.original.root_comments.size
+    else
+      object.root_comments.size
+    end
+    
+  end
 
-  
+  def shared_number
+    if object.shared
+      object.original.shares.size
+    else
+      object.shares.size
+    end
+    
+  end
+
+  def is_shared
+    object.shared?
+  end
+
+  def original_id
+    if object.shared?
+      object.original.id      
+    end
+  end
+
 
 
 end

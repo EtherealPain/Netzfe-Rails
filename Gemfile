@@ -31,7 +31,7 @@ gem 'acts_as_votable', '~> 0.12.0'
 #For the search methods
 gem 'pg_search'
 
-gem 'fast_jsonapi'
+gem 'active_model_serializers', '~> 0.10.0'
 gem 'oj'
 
 gem 'redis'

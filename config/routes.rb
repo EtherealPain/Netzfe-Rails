@@ -66,19 +66,22 @@ Rails.application.routes.draw do
       post 'share'
   		#POST /activities/:id/share
 
-      #post 'voteup/:votable_user_id' => 'activities#voteup'
+     
       post 'voteup'
       #POST users/:id/voteup/
-      post 'votedown'
-      #post 'votedown/:votable_user_id' => 'activities#votedown'
+      #post 'votedown'
       #POST users/:id/votedown
+      #get 'comments'
+      #GET /activities/:id/comments
+
+
 
     #this basically routes the collection actions #index, #create under
     #get or post /activities/:id/comments
     #but leaves the member routes aka #get, #update, #delete to the /comments/:id routes
     #the comments have a commentable_id that is basically a per-model index, not sure how it would work
   	end
-    resources :comments
+    resources :comments, shallow: true
   end
 
   mount_devise_token_auth_for 'User', at: 'auth', controllers: {

@@ -4,7 +4,7 @@ class UsersController < ApplicationController
 
   # GET /users/1
   def show
-    render json: UserSerializer.new(@user).serialized_json
+    render json: @user, serializer: UserFullSerializer
   end
 
   #PATCH /users/:id/archive
