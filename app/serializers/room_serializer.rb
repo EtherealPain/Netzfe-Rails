@@ -1,12 +1,8 @@
-class RoomSerializer
-    include FastJsonapi::ObjectSerializer
+class RoomSerializer < ActiveModel::Serializer
     attributes :id, :name, :created_at, :updated_at
-    attributes :messages do |object|
-        object.messages.each do |c|
-            c.body
-            c.id
-        end
-    end 
+    
+    has_many :messages
+
     belongs_to :activity    
 end
   
