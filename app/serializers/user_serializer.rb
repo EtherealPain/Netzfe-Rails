@@ -6,7 +6,8 @@ class UserSerializer < ActiveModel::Serializer
   			:email,
   			:first_name,
   			:followers,
-  			:following,
+			:following,
+			:is_follower,
   			:last_name,
   			:participant_in,
   			:phone,
@@ -32,4 +33,9 @@ class UserSerializer < ActiveModel::Serializer
   def avatar
   	Rails.application.routes.url_helpers.rails_blob_path(object.avatar, only_path: true) if object.avatar.attachment
   end
+
+  def is_follower
+    current_user.following? object
+  end
+  
 end

@@ -7,16 +7,21 @@ class SearchController < ApplicationController
     if @objects.first.nil?
       head(:not_found)
     else
+      
       @objects.each do |c|
-        if !c.archived
-          @users << c
+        unless c == current_user
+          unless c.archived
+            @users << c
+          end
         end
       end
-      if !@users.first.nil?
-        render json: @users, serializer: UserFullSerializer
+
+      unless @users.first.nil?
+        render json: @users, status: :ok
       else
         head(:not_found)
       end
+
     end
   end
 
@@ -25,7 +30,7 @@ class SearchController < ApplicationController
     if @category.nil?
       head(:not_found)
     else
-      @activities = Activity.where('category_id = ? AND status != ?', @category.id, 'archived')
+      @activities = Activity.where('category_id = ? AND status != ? AND user_id != ?', @category.id, 'archived', current_user)
       if @activities.first.nil?
         head(:not_found) 
       else
