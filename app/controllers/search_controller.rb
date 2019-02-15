@@ -13,7 +13,7 @@ class SearchController < ApplicationController
         end
       end
       if !@users.first.nil?
-        render json: @users, status: :ok
+        render json: @users, serializer: UserFullSerializer
       else
         head(:not_found)
       end
