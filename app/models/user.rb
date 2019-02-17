@@ -26,6 +26,16 @@ class User < ActiveRecord::Base
   acts_as_votable 
   #permits voting on the user, it works as the rating column
 
+  validate :date_of_birth_validation
+
+   def date_of_birth_validation
+    if will_save_change_to_date_of_birth? && date_of_birth.present? && self.date_of_birth > Date.today - 15.years
+     errors.add(:date_of_birth, "user must be above 15 years of age!")
+    end
+  end
+
+
+
   def archive_user
     self.archived = true
   
@@ -39,5 +49,7 @@ class User < ActiveRecord::Base
   def rating
     self.weighted_score
   end
+
+
   
 end

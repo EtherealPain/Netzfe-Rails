@@ -14,15 +14,14 @@ class ActivitiesController < ApplicationController
     
     @activities = Activity.where('status' => ['open','finished'],
                                   'user_id' => current_user.following_by_type('User')
-                                ).or(Activity.where(user_id: current_user, status: ['open','finished'])).page( params[:page])
+                                ).or(Activity.where(user_id: current_user, status: ['open','finished'])).order(deadline: :asc).page( params[:page])
 
     render json: @activities
-
   end
 
   # GET /activities/1
   def show
-    render json: @activity, serializer: ActivityWithCommentsSerializer, include: 'comments'
+    render json: @activity, serializer: ActivityWithCommentsSerializer
   end
 
   # POST /activities

@@ -60,7 +60,7 @@ class UsersController < ApplicationController
 
   #GET users/:id/activities
   def activities
-    @activities = Activity.where(user_id: @user, status: ['open','finished','expired']).page( params[:page])
+    @activities = Activity.where(user_id: @user, status: ['open','finished','expired']).order(deadline: :asc).page( params[:page])
     render json: @activities
   end
 
