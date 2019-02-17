@@ -83,6 +83,8 @@ GEM
       devise (> 3.5.2, < 4.6)
       rails (>= 4.2.0, < 6)
     erubi (1.8.0)
+    faker (1.9.3)
+      i18n (>= 0.7)
     globalid (0.4.1)
       activesupport (>= 4.2.0)
     hashie (3.6.0)
@@ -199,6 +201,7 @@ DEPENDENCIES
   bootsnap (>= 1.1.0)
   byebug
   devise_token_auth
+  faker
   kaminari
   notifications
   oj
@@ -215,4 +218,4 @@ RUBY VERSION
    ruby 2.4.3p205
 
 BUNDLED WITH
-   1.16.2
+   2.0.1
