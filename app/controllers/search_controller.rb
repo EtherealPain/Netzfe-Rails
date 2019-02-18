@@ -30,7 +30,7 @@ class SearchController < ApplicationController
     if @category.nil?
       head(:not_found)
     else
-      @activities = Activity.where('category_id = ? AND status != ? AND user_id != ?', @category.id, 'archived', current_user)
+      @activities = Activity.where('category_id = ? AND status != ? AND user_id != ?', @category.id, 'archived', current_user).order(created_at: :desc).page( params[:page])
       if @activities.first.nil?
         head(:not_found) 
       else
