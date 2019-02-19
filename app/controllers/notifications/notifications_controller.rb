@@ -8,10 +8,10 @@ module Notifications
 
       @notification_groups = @notifications.group_by { |note| note.created_at.to_date }
 
-      if @notification_groups.first.nil?
+      if @notifications.first.nil?
         head(:no_content)
       else
-        render json: @notification_groups, status: :ok
+        render json: @notifications, status: :ok
       end
 
     end
