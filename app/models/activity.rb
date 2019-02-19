@@ -5,6 +5,7 @@ class Activity < ApplicationRecord
   belongs_to :user
   belongs_to :category
   has_one_attached :image
+  mount_base64_uploader :avatar, ImageUploader, file_name: -> (u) { u.title }
   has_one :room, dependent: :destroy #An activity always has one room
   has_many :shares, :class_name => "Activity", :foreign_key => "activity_id"
   belongs_to :original, :class_name => "Activity", :foreign_key => "activity_id", optional: true

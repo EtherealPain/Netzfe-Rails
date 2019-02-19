@@ -36,9 +36,9 @@ class ActivityWithCommentsSerializer < ActiveModel::Serializer
 
   def image
     if object.shared?
-      Rails.application.routes.url_helpers.rails_blob_path(object.original.image, only_path: true) if object.original.image.attachment
+      object.original.avatar.url if object.original.avatar
     else
-      Rails.application.routes.url_helpers.rails_blob_path(object.image, only_path: true) if object.image.attachment
+      object.avatar.url if object.avatar
     end
   end
 

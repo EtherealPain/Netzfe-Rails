@@ -5,6 +5,8 @@ class User < ActiveRecord::Base
 
   has_and_belongs_to_many :rooms, dependent: :destroy #one user can have many conversations
   
+  mount_base64_uploader :profile_image, ImageUploader, file_name: -> (u) { u.first_name }
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -15,7 +17,7 @@ class User < ActiveRecord::Base
   has_one_attached :avatar
   
   has_many :activities, dependent: :destroy #if user is deleted your activities too
-
+  
   #followers and following implementarion
   acts_as_follower
   #enable the user to use the follow methods
