@@ -31,7 +31,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def avatar
-  	Rails.application.routes.url_helpers.rails_blob_path(object.avatar, only_path: true) if object.avatar.attachment
+		object.profile_image.url if object.profile_image
   end
 
   def is_follower

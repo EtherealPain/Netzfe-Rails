@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_02_17_065950) do
+ActiveRecord::Schema.define(version: 2019_02_19_000458) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -47,6 +47,8 @@ ActiveRecord::Schema.define(version: 2019_02_17_065950) do
     t.integer "activity_id"
     t.string "status", default: "open"
     t.string "title"
+    t.string "file_image", default: ""
+    t.string "avatar", default: ""
     t.index ["category_id"], name: "index_activities_on_category_id"
     t.index ["user_id"], name: "index_activities_on_user_id"
   end
@@ -175,6 +177,8 @@ ActiveRecord::Schema.define(version: 2019_02_17_065950) do
     t.integer "cached_weighted_score", default: 0
     t.integer "cached_weighted_total", default: 0
     t.float "cached_weighted_average", default: 0.0
+    t.string "image_file", default: ""
+    t.string "profile_image", default: ""
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

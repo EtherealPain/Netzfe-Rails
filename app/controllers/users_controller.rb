@@ -60,7 +60,7 @@ class UsersController < ApplicationController
 
   #GET users/:id/activities
   def activities
-    @activities = Activity.where(user_id: @user, status: ['open','finished','expired']).order(deadline: :asc).page( params[:page])
+    @activities = Activity.where(user_id: @user, status: ['open','finished','expired']).order(created_at: :desc).page( params[:page])
     render json: @activities
   end
 
@@ -75,6 +75,6 @@ class UsersController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def user_params
-      params.permit(:first_name, :last_name, :date_of_birth, :degree, :avatar, :phone, :page)
+      params.permit(:first_name, :last_name, :date_of_birth, :degree, :phone, :page, :profile_image)
     end
 end
