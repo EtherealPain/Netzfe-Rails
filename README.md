@@ -1,10 +1,7 @@
-# README
+# Netzfe API
 
-API endpoints
+Backend layer of Netzfe.
 
-POST /auth/sign_in with email and password, in order to sign in and get a token sent back
-whith that token you can proceed to 
+Neztfe is a social network oriented to be a channel of communication and organization for social aid events.
 
-GET /activities/:id
-
-POST /activities/:id/like and POST /activities/:id/unlike
+Project developed for the subject Laboratory III on software engineering, UCLA Barquisimeto, Venezuela. 
